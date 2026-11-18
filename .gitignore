@@ -1,0 +1,8 @@
+# Archivos generados por Flutter
+.dart_tool/
+.flutter-plugins*
+.packages
+build/
+android/.gradle/
+.idea/
+*.iml
