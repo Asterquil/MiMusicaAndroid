@@ -1,19 +1,18 @@
 name: music_player_local
-description: Reproductor musical local para Android
+description: Mi Musica Android - biblioteca automatica
 publish_to: none
-version: 1.0.0+1
+version: 2.0.0+2
 environment:
-  sdk: '>=3.4.0 <4.0.0'
+  sdk: '>=3.5.0 <4.0.0'
 dependencies:
   flutter:
     sdk: flutter
   just_audio: ^0.9.46
-  file_picker: ^10.3.10
-  path_provider: ^2.1.5
+  just_audio_background: ^0.0.1-beta.17
+  audio_session: ^0.1.25
   shared_preferences: ^2.5.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
 flutter:
   uses-material-design: true
