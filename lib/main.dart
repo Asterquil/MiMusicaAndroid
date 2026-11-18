@@ -116,10 +116,15 @@ class _MusicHomeState extends State<MusicHome> with WidgetsBindingObserver {
         _recoverCompletedQueue();
       }
     }));
-    subscriptions.add(player.errorStream.listen((error) {
-      playbackError = error.toString();
-      _message('Error de audio: $playbackError');
-    }));
+    subscriptions.add(
+  player.playerStateStream.listen(
+    (_) {},
+    onError: (Object error, StackTrace stackTrace) {
+      debugPrint('Error de audio: $error');
+      debugPrintStack(stackTrace: stackTrace);
+    },
+  ),
+);
     subscriptions.add(player.currentIndexStream.listen((index) {
       if (index != null && index >= 0 && index < queue.length && mounted) {
         setState(() => currentId = queue[index].id);
