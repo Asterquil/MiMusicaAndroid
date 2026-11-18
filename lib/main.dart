@@ -78,6 +78,8 @@ class _MusicHomeState extends State<MusicHome> with WidgetsBindingObserver {
   List<Map<String, dynamic>> onlineResults = [];
   List<Song> downloads = [];
   Timer? saveTimer;
+  bool _recoveringCompletion = false;
+  String? playbackError;
   final TextEditingController onlineSearch = TextEditingController();
   final List<StreamSubscription<dynamic>> subscriptions = [];
 
@@ -107,6 +109,16 @@ class _MusicHomeState extends State<MusicHome> with WidgetsBindingObserver {
     }));
     subscriptions.add(player.playerStateStream.listen((value) {
       if (mounted) setState(() => playing = value.playing);
+      // just_audio normally advances automatically. Recover only if the
+      // playlist actually reaches completed while more tracks remain.
+      if (value.processingState == ProcessingState.completed &&
+          queue.length > 1 && repeat != LoopMode.one) {
+        _recoverCompletedQueue();
+      }
+    }));
+    subscriptions.add(player.errorStream.listen((error) {
+      playbackError = error.toString();
+      _message('Error de audio: $playbackError');
     }));
     subscriptions.add(player.currentIndexStream.listen((index) {
       if (index != null && index >= 0 && index < queue.length && mounted) {
@@ -172,7 +184,8 @@ class _MusicHomeState extends State<MusicHome> with WidgetsBindingObserver {
   AudioSource _sourceFor(Song s) => AudioSource.uri(Uri.parse(s.uri), tag: MediaItem(
     id: s.uri, title: s.title, artist: s.artist.isEmpty ? 'Artista desconocido' : s.artist,
     album: s.album, duration: s.duration > 0 ? Duration(milliseconds: s.duration) : null,
-    artUri: s.albumId > 0 ? Uri.parse('content://media/external/audio/albumart/${s.albumId}') : null,
+    // Keep notification metadata safe; album artwork is displayed in the app.
+    artUri: null,
   ));
 
   Future<void> _loadDownloads() async {
@@ -242,6 +255,25 @@ class _MusicHomeState extends State<MusicHome> with WidgetsBindingObserver {
       if (mounted) setState(() => currentId = selected.id);
       await player.play();
     } catch (e) { _message('Error al reproducir: $e'); }
+  }
+
+  Future<void> _recoverCompletedQueue() async {
+    if (_recoveringCompletion || queue.length < 2 || !player.hasNext) return;
+    _recoveringCompletion = true;
+    try {
+      // Delay slightly to avoid racing just_audio's own sequence transition.
+      await Future<void>.delayed(const Duration(milliseconds: 350));
+      if (player.processingState == ProcessingState.completed && player.hasNext) {
+        await player.seekToNext();
+        // Don't await play(): its future can remain pending until playback ends.
+        unawaited(player.play());
+      }
+    } catch (e) {
+      playbackError = e.toString();
+      _message('No se pudo avanzar: $e');
+    } finally {
+      _recoveringCompletion = false;
+    }
   }
 
   Future<void> _toggle() async {
