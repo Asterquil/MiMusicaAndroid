@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:math';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -123,12 +122,6 @@ class _MusicHomeState extends State<MusicHome> {
         final ext = file.extension?.toLowerCase() ?? 'mp3';
         final target = await source.copy('${dir.path}/$id.$ext');
         String title = file.name.replaceFirst(RegExp(r'\.[^.]+$'), ''), artist = 'Artista desconocido', album = 'Álbum desconocido';
-        try {
-          final metadata = await MetadataRetriever.fromFile(target);
-          if (metadata.trackName?.trim().isNotEmpty == true) title = metadata.trackName!.trim();
-          if (metadata.trackArtistNames?.isNotEmpty == true) artist = metadata.trackArtistNames!.join(', ');
-          if (metadata.albumName?.trim().isNotEmpty == true) album = metadata.albumName!.trim();
-        } catch (_) { /* Un archivo sin etiquetas sigue siendo reproducible. */ }
         songs.add(Song(id: id, path: target.path, title: title, artist: artist, album: album));
         added++;
       }
@@ -252,21 +245,17 @@ class _MusicHomeState extends State<MusicHome> {
     return h > 0 ? '$h:$m:$s' : '$m:$s';
   }
 
-  Widget _cover(Song song, {double size = 52}) => FutureBuilder<Metadata?>(
-    future: _metadata(song.path),
-    builder: (ctx, snapshot) {
-      final bytes = snapshot.data?.albumArt;
-      return ClipRRect(borderRadius: BorderRadius.circular(10), child: SizedBox(width: size, height: size,
-        child: bytes != null && bytes.isNotEmpty
-          ? Image.memory(bytes, fit: BoxFit.cover, gaplessPlayback: true)
-          : Container(color: const Color(0xFF30363B), child: const Icon(Icons.music_note, color: Color(0xFF32D583)))));
-    },
+  Widget _cover(Song song, {double size = 52}) => ClipRRect(
+    borderRadius: BorderRadius.circular(10),
+    child: SizedBox(
+      width: size,
+      height: size,
+      child: Container(
+        color: const Color(0xFF30363B),
+        child: const Icon(Icons.music_note, color: Color(0xFF32D583)),
+      ),
+    ),
   );
-
-  final Map<String, Future<Metadata?>> _artCache = {};
-  Future<Metadata?> _metadata(String path) => _artCache.putIfAbsent(path, () async {
-    try { return await MetadataRetriever.fromFile(File(path)); } catch (_) { return null; }
-  });
 
   @override
   Widget build(BuildContext context) {
