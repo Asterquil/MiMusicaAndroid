@@ -28,11 +28,13 @@ jobs:
       - name: Instalar dependencias
         run: flutter pub get
       - name: Compilar APK
-        run: flutter build apk --release
+        env:
+          JAMENDO_CLIENT_ID: ${{ secrets.JAMENDO_CLIENT_ID }}
+        run: flutter build apk --release --dart-define=JAMENDO_CLIENT_ID="$JAMENDO_CLIENT_ID"
       - name: Publicar APK
         uses: actions/upload-artifact@v4
         with:
-          name: MiMusica-Android-v2-APK
+          name: MiMusica-Android-v3-APK
           path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 30
