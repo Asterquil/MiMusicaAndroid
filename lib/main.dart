@@ -325,7 +325,7 @@ class _MusicHomeState extends State<MusicHome> with WidgetsBindingObserver {
             }, itemBuilder: (_) => [const PopupMenuItem(value: 'add', child: Text('Agregar a playlist')),
               if (selectedPlaylist != null) const PopupMenuItem(value: 'remove', child: Text('Quitar de playlist'))]),
           );
-        }))),
+        })),
         Container(padding: const EdgeInsets.fromLTRB(14, 8, 14, 12),
           decoration: const BoxDecoration(color: Color(0xFF202329),
             borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
