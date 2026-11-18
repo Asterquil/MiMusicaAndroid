@@ -354,7 +354,7 @@ class _MusicHomeState extends State<MusicHome> with WidgetsBindingObserver {
       leading: const Icon(Icons.music_note),
       title: Text(current!.title, maxLines: 1, overflow: TextOverflow.ellipsis),
       subtitle: Text(current!.artist, maxLines: 1),
-      trailing: Wrap(mainAxisSize: MainAxisSize.min, children: [
+      trailing: Wrap(children: [
         IconButton(onPressed: _previous, icon: const Icon(Icons.skip_previous)),
         IconButton(onPressed: _toggle, icon: Icon(playing ? Icons.pause : Icons.play_arrow)),
         IconButton(onPressed: _next, icon: const Icon(Icons.skip_next)),
