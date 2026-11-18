@@ -24,3 +24,13 @@ Reemplaza en GitHub `lib/main.dart`, `pubspec.yaml`, `android_custom/configure_a
 - El guardado de progreso es periódico (cada 5 s) y puede perder los últimos segundos si Android mata el proceso.
 - El reproductor singleton mejora continuidad en el proceso, pero no garantiza reproducción si HiOS mata el proceso al retirar la app. Para máxima robustez se recomienda migrar a un AudioHandler de audio_service gestionado fuera del widget.
 - El catálogo Jamendo no equivale al de Spotify; solo se pueden descargar pistas con autorización del proveedor y respetando su licencia.
+
+
+## Versión 3.1 — correcciones en prueba
+
+- Se eliminó el parámetro inválido `mainAxisSize` de `Wrap`.
+- Se evita entregar una URI `content://` de portada al servicio de notificaciones (las portadas dentro de la app se mantienen).
+- Se registran errores del reproductor y se intenta recuperar el avance solo si la cola llega a `completed` y quedan pistas.
+- **No está verificado** que el servicio multimedia sobreviva 20 minutos en TECNO/HiOS ni que aparezca la notificación: requiere pruebas en dispositivo y, si falla, registros de Android (`adb logcat`).
+- Jamendo: registrar un cliente en developer.jamendo.com y añadir el secreto `JAMENDO_CLIENT_ID` en GitHub Settings → Secrets and variables → Actions. Ejecutar de nuevo el workflow para compilar con el identificador. El `client_id` embebido en una APK no es un secreto real; consultar condiciones y cuotas de Jamendo.
+- La versión mantiene el mismo `applicationId` generado por Flutter; para actualizar una APK existente se requiere la misma firma. Hacer copia de los datos antes de desinstalar.
