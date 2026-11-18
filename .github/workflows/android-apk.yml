@@ -1,13 +1,10 @@
 name: Compilar APK Android
-
 on:
-  workflow_dispatch:
   push:
     branches: [main, master]
-
+  workflow_dispatch:
 permissions:
   contents: read
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -24,16 +21,18 @@ jobs:
         with:
           channel: stable
           cache: true
-      - name: Generar estructura Android
+      - name: Generar proyecto Android
         run: flutter create --platforms=android --project-name music_player_local --org com.mimusica .
+      - name: Configurar Android y permisos
+        run: python3 android_custom/configure_android.py
       - name: Instalar dependencias
         run: flutter pub get
       - name: Compilar APK
         run: flutter build apk --release
-      - name: Publicar APK descargable
+      - name: Publicar APK
         uses: actions/upload-artifact@v4
         with:
-          name: MiMusica-Android-APK
+          name: MiMusica-Android-v2-APK
           path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 30
